@@ -1,4 +1,4 @@
-# Getters
+# 게터 %{#getters}%
 
 <!-- <VueSchoolLink
   href="https://vueschool.io/lessons/getters-in-pinia"
@@ -10,7 +10,7 @@
   title="Learn all about getters in Pinia"
 />
 
-Getters are exactly the equivalent of [computed values](https://vuejs.org/guide/essentials/computed.html) for the state of a Store. They can be defined with the `getters` property in `defineStore()`. They receive the `state` as the first parameter **to encourage** the usage of arrow function:
+게터는 스토어의 상태에 대한 [computed 값](https://vuejs.org/guide/essentials/computed.html)과 정확히 동일합니다. `defineStore()`의 `getters` 속성으로 정의할 수 있습니다. **화살표 함수 사용을 장려하기 위해** `state`를 첫 번째 매개변수로 받습니다:
 
 ```js
 export const useCounterStore = defineStore('counter', {
@@ -23,7 +23,7 @@ export const useCounterStore = defineStore('counter', {
 })
 ```
 
-Most of the time, getters will only rely on the state. However, they might need to use other getters. Because of this, we can get access to the _whole store instance_ through `this` when defining a regular function **but it is necessary to define the type of the return type (in TypeScript)**. This is due to a known limitation in TypeScript and **doesn't affect getters defined with an arrow function nor getters not using `this`**:
+대부분의 경우, 게터는 상태에만 의존합니다. 그러나 다른 게터를 사용할 필요가 있을 수도 있습니다. 이 때문에, 일반 함수를 정의할 때 `this`를 통해 _전체 스토어 인스턴스_에 접근할 수 있습니다. **하지만 반환 타입을 명시적으로 지정해야 합니다(TypeScript에서)**. 이는 TypeScript의 알려진 한계 때문이며, **화살표 함수로 정의된 게터나 `this`를 사용하지 않는 게터에는 영향을 주지 않습니다**:
 
 ```ts
 export const useCounterStore = defineStore('counter', {
@@ -31,20 +31,20 @@ export const useCounterStore = defineStore('counter', {
     count: 0,
   }),
   getters: {
-    // automatically infers the return type as a number
+    // 반환 타입이 자동으로 number로 추론됨
     doubleCount(state) {
       return state.count * 2
     },
-    // the return type **must** be explicitly set
+    // 반환 타입을 **명시적으로** 지정해야 함
     doublePlusOne(): number {
-      // autocompletion and typings for the whole store ✨
+      // 전체 스토어에 대한 자동완성 및 타입 지원 ✨
       return this.doubleCount + 1
     },
   },
 })
 ```
 
-Then you can access the getter directly on the store instance:
+그런 다음 스토어 인스턴스에서 직접 게터에 접근할 수 있습니다:
 
 ```vue
 <script setup>
@@ -58,9 +58,9 @@ const store = useCounterStore()
 </template>
 ```
 
-## Accessing other getters
+## 다른 게터 접근하기 %{#accessing-other-getters}%
 
-As with computed properties, you can combine multiple getters. Access any other getter via `this`. In this scenario, **you will need to specify a return type** for the getter.
+computed 속성과 마찬가지로, 여러 게터를 조합할 수 있습니다. `this`를 통해 다른 게터에 접근하세요. 이 경우, **게터의 반환 타입을 지정해야 합니다**.
 
 ::: code-group
 
@@ -81,23 +81,23 @@ export const useCounterStore = defineStore('counter', {
 ```
 
 ```js [counterStore.js]
-// You can use JSDoc (https://jsdoc.app/tags-returns.html) in JavaScript
+// JavaScript에서는 JSDoc(https://jsdoc.app/tags-returns.html)을 사용할 수 있습니다
 export const useCounterStore = defineStore('counter', {
   state: () => ({
     count: 0,
   }),
   getters: {
-    // type is automatically inferred because we are not using `this`
+    // `this`를 사용하지 않으므로 타입이 자동으로 추론됨
     doubleCount: (state) => state.count * 2,
-    // here we need to add the type ourselves (using JSDoc in JS). We can also
-    // use this to document the getter
+    // 여기서는 타입을 직접 추가해야 함(JS에서는 JSDoc 사용). 또한
+    // 게터에 대한 문서화도 할 수 있음
     /**
-     * Returns the count value times two plus one.
+     * count 값을 두 배로 한 후 1을 더해 반환합니다.
      *
      * @returns {number}
      */
     doubleCountPlusOne() {
-      // autocompletion ✨
+      // 자동완성 ✨
       return this.doubleCount + 1
     },
   },
@@ -106,9 +106,9 @@ export const useCounterStore = defineStore('counter', {
 
 :::
 
-## Passing arguments to getters
+## 게터에 인자 전달하기 %{#passing-arguments-to-getters}%
 
-_Getters_ are just _computed_ properties behind the scenes, so it's not possible to pass any parameters to them. However, you can return a function from the _getter_ to accept any arguments:
+_게터_는 내부적으로 _computed_ 속성일 뿐이므로, 인자를 전달할 수 없습니다. 하지만, _게터_에서 함수를 반환하여 인자를 받을 수 있습니다:
 
 ```js
 export const useStore = defineStore('main', {
@@ -120,7 +120,7 @@ export const useStore = defineStore('main', {
 })
 ```
 
-and use in component:
+그리고 컴포넌트에서 사용하기:
 
 ```vue
 <script setup>
@@ -129,8 +129,7 @@ import { useUserListStore } from './store'
 
 const userList = useUserListStore()
 const { getUserById } = storeToRefs(userList)
-// note you will have to use `getUserById.value` to access
-// the function within the <script setup>
+// <script setup> 내에서 함수에 접근하려면 반드시 `getUserById.value`를 사용해야 함에 유의
 </script>
 
 <template>
@@ -138,7 +137,7 @@ const { getUserById } = storeToRefs(userList)
 </template>
 ```
 
-Note that when doing this, **getters are not cached anymore**. They are simply functions you invoke. You can, however, cache some results inside of the getter itself, which is uncommon but should prove more performant:
+이렇게 하면 **게터가 더 이상 캐시되지 않는다는 점**에 유의하세요. 단순히 호출하는 함수가 됩니다. 하지만, 게터 내부에서 일부 결과를 캐시할 수 있습니다. 이는 흔하지 않지만 성능상 더 유리할 수 있습니다:
 
 ```js
 export const useStore = defineStore('main', {
@@ -151,9 +150,9 @@ export const useStore = defineStore('main', {
 })
 ```
 
-## Accessing other stores getters
+## 다른 스토어의 게터 접근하기 %{#accessing-other-stores-getters}%
 
-To use another store's getters, you can directly _use it_ inside of the _getter_:
+다른 스토어의 게터를 사용하려면, _게터_ 내부에서 직접 _사용_할 수 있습니다:
 
 ```js
 import { useOtherStore } from './other-store'
@@ -171,9 +170,9 @@ export const useStore = defineStore('main', {
 })
 ```
 
-## Usage with `setup()`
+## `setup()`에서의 사용 %{#usage-with-setup}%
 
-You can directly access any getter as a property of the store (exactly like state properties):
+스토어의 모든 게터에 (상태 속성과 정확히 동일하게) 직접 접근할 수 있습니다:
 
 ```vue
 <script setup>
@@ -184,17 +183,17 @@ store.doubleCount // 6
 </script>
 ```
 
-## Usage with the Options API
+## Options API에서의 사용 %{#usage-with-the-options-api}%
 
 <VueSchoolLink
   href="https://vueschool.io/lessons/access-pinia-getters-in-the-options-api"
   title="Access Pinia Getters via the Options API"
 />
 
-For the following examples, you can assume the following store was created:
+다음 예시에서는 아래와 같은 스토어가 생성되었다고 가정합니다:
 
 ```js
-// Example File Path:
+// 예시 파일 경로:
 // ./src/stores/counter.js
 
 import { defineStore } from 'pinia'
@@ -211,9 +210,9 @@ export const useCounterStore = defineStore('counter', {
 })
 ```
 
-### With `setup()`
+### `setup()`과 함께 %{#with-setup}%
 
-While Composition API is not for everyone, the `setup()` hook can make using Pinia easier to work with in the Options API. No extra map helper functions needed!
+Composition API가 모두에게 적합한 것은 아니지만, `setup()` 훅을 사용하면 Options API에서 Pinia를 더 쉽게 사용할 수 있습니다. 별도의 map 헬퍼 함수가 필요 없습니다!
 
 ```vue
 <script>
@@ -223,7 +222,7 @@ export default defineComponent({
   setup() {
     const counterStore = useCounterStore()
 
-    // **only return the whole store** instead of destructuring
+    // **전체 스토어만 반환**하고 구조 분해하지 마세요
     return { counterStore }
   },
   computed: {
@@ -235,11 +234,11 @@ export default defineComponent({
 </script>
 ```
 
-This is useful while migrating a component from the Options API to the Composition API but **should only be a migration step**. Always try not to mix both API styles within the same component.
+이는 컴포넌트를 Options API에서 Composition API로 마이그레이션할 때 유용하지만, **마이그레이션 단계에서만 사용해야 합니다**. 한 컴포넌트 내에서 두 API 스타일을 혼용하지 않도록 항상 주의하세요.
 
-### Without `setup()`
+### `setup()` 없이 %{#without-setup}%
 
-You can use the same `mapState()` function used in the [previous section of state](./state.md#options-api) to map to getters:
+[이전 state 섹션](./state.md#options-api)에서 사용한 것과 동일한 `mapState()` 함수를 사용하여 게터를 매핑할 수 있습니다:
 
 ```js
 import { mapState } from 'pinia'
@@ -247,13 +246,13 @@ import { useCounterStore } from '../stores/counter'
 
 export default {
   computed: {
-    // gives access to this.doubleCount inside the component
-    // same as reading from store.doubleCount
+    // 컴포넌트 내에서 this.doubleCount로 접근 가능
+    // store.doubleCount에서 읽는 것과 동일
     ...mapState(useCounterStore, ['doubleCount']),
-    // same as above but registers it as this.myOwnName
+    // 위와 같지만 this.myOwnName으로 등록됨
     ...mapState(useCounterStore, {
       myOwnName: 'doubleCount',
-      // you can also write a function that gets access to the store
+      // 스토어에 접근할 수 있는 함수를 작성할 수도 있음
       double: (store) => store.doubleCount,
     }),
   },

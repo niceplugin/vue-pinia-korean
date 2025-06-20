@@ -1,15 +1,15 @@
-# Dealing with Composables
+# 컴포저블 다루기 %{#dealing-with-composables}%
 
-[Composables](https://vuejs.org/guide/reusability/composables.html#composables) are functions that leverage Vue Composition API to encapsulate and reuse stateful logic. Whether you write your own, you use [external libraries](https://vueuse.org/) or do both, you can fully use the power of Composables in your pinia stores.
+[컴포저블](https://vuejs.org/guide/reusability/composables.html#composables)은 Vue Composition API를 활용하여 상태 기반 로직을 캡슐화하고 재사용하는 함수입니다. 직접 작성하든, [외부 라이브러리](https://vueuse.org/)를 사용하든, 또는 둘 다 사용하든, Pinia 스토어에서 컴포저블의 모든 기능을 완전히 활용할 수 있습니다.
 
-## Option Stores
+## 옵션 스토어 %{#option-stores}%
 
 <MasteringPiniaLink
   href="https://masteringpinia.com/lessons/using-composables-in-option-stores"
-  title="Using Composables in Option Stores"
+  title="옵션 스토어에서 컴포저블 사용하기"
 />
 
-When defining an option store, you can call a composable inside of the `state` property:
+옵션 스토어를 정의할 때, `state` 속성 안에서 컴포저블을 호출할 수 있습니다:
 
 ```ts
 export const useAuthStore = defineStore('auth', {
@@ -19,32 +19,32 @@ export const useAuthStore = defineStore('auth', {
 })
 ```
 
-Keep in mind that **you can only return writable state** (e.g. a `ref()`). Here are some examples of composables that you can use:
+**반드시 쓸 수 있는(writable) 상태**(예: `ref()`)만 반환할 수 있다는 점을 명심하세요. 사용할 수 있는 컴포저블의 예시는 다음과 같습니다:
 
 - [useLocalStorage](https://vueuse.org/core/useLocalStorage/)
 - [useAsyncState](https://vueuse.org/core/useAsyncState/)
 
-Here are some examples of composables that cannot be used in an option stores (but can be used with setup stores):
+옵션 스토어에서는 사용할 수 없지만(설정 스토어에서는 사용 가능) 다음과 같은 컴포저블의 예시도 있습니다:
 
-- [useMediaControls](https://vueuse.org/core/useMediaControls/): exposes functions
-- [useMemoryInfo](https://vueuse.org/core/useMemory/): exposes readonly data
-- [useEyeDropper](https://vueuse.org/core/useEyeDropper/): exposes readonly data and functions
+- [useMediaControls](https://vueuse.org/core/useMediaControls/): 함수 제공
+- [useMemoryInfo](https://vueuse.org/core/useMemory/): 읽기 전용 데이터 제공
+- [useEyeDropper](https://vueuse.org/core/useEyeDropper/): 읽기 전용 데이터와 함수 제공
 
-## Setup Stores
+## 설정 스토어 %{#setup-stores}%
 
 <MasteringPiniaLink
   href="https://masteringpinia.com/lessons/using-composables-in-setup-stores"
-  title="Using Composables in Setup Stores"
+  title="설정 스토어에서 컴포저블 사용하기"
 />
 
-On the other hand, when defining a setup store, you can use almost any composable since every property gets discerned into state, action, or getter:
+반면, 설정 스토어를 정의할 때는 모든 속성이 상태, 액션, 게터로 구분되기 때문에 거의 모든 컴포저블을 사용할 수 있습니다:
 
 ```ts
 import { defineStore } from 'pinia'
 import { useMediaControls } from '@vueuse/core'
 
 export const useVideoPlayer = defineStore('video', () => {
-  // we won't expose (return) this element directly
+  // 이 엘리먼트는 직접 노출(반환)하지 않습니다
   const videoElement = ref<HTMLVideoElement>()
   const src = ref('/data/video.mp4')
   const { playing, volume, currentTime, togglePictureInPicture } =
@@ -68,14 +68,14 @@ export const useVideoPlayer = defineStore('video', () => {
 ```
 
 :::warning
-Differently from regular state, `ref<HTMLVideoElement>()` contains a non-serializable reference to the DOM element. This is why we don't return it directly. Since it's client-only state, we know it won't be set on the server and will **always** start as `undefined` on the client.
+일반적인 상태와는 다르게, `ref<HTMLVideoElement>()`는 DOM 엘리먼트에 대한 직렬화할 수 없는 참조를 포함합니다. 그래서 직접 반환하지 않습니다. 클라이언트 전용 상태이기 때문에 서버에서는 설정되지 않으며, 클라이언트에서 **항상** `undefined`로 시작합니다.
 :::
 
-## SSR
+## SSR %{#ssr}%
 
-When dealing with [Server Side Rendering](../ssr/index.md), you need to take care of some extra steps in order to use composables within your stores.
+[서버 사이드 렌더링](../ssr/index.md)을 다룰 때, 스토어 내에서 컴포저블을 사용하려면 몇 가지 추가 단계를 거쳐야 합니다.
 
-In [Option Stores](#option-stores), you need to define a `hydrate()` function. This function is called when the store is instantiated on the client (the browser) when there is an initial state available at the time the store is created. The reason we need to define this function is because in such scenario, `state()` is not called.
+[옵션 스토어](#option-stores)에서는 `hydrate()` 함수를 정의해야 합니다. 이 함수는 스토어가 클라이언트(브라우저)에서 인스턴스화될 때, 스토어가 생성되는 시점에 초기 상태가 있을 경우 호출됩니다. 이 함수를 정의해야 하는 이유는 이런 상황에서는 `state()`가 호출되지 않기 때문입니다.
 
 ```ts
 import { defineStore } from 'pinia'
@@ -87,14 +87,13 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   hydrate(state, initialState) {
-    // in this case we can completely ignore the initial state since we
-    // want to read the value from the browser
+    // 이 경우 브라우저에서 값을 읽고 싶으므로 초기 상태는 완전히 무시할 수 있습니다
     state.user = useLocalStorage('pinia/auth/login', 'bob')
   },
 })
 ```
 
-In [Setup Stores](#setup-stores), you need to use a helper named `skipHydrate()` on any state property that shouldn't be picked up from the initial state. Differently from option stores, setup stores cannot just _skip calling `state()`_, so we mark properties that cannot be hydrated with `skipHydrate()`. Note that this only applies to state properties:
+[설정 스토어](#setup-stores)에서는 초기 상태에서 가져오지 않아야 하는 상태 속성에 `skipHydrate()`라는 헬퍼를 사용해야 합니다. 옵션 스토어와는 다르게, 설정 스토어는 _`state()` 호출을 건너뛸 수 없으므로_, hydrate할 수 없는 속성에 `skipHydrate()`를 표시합니다. 이 기능은 상태 속성에만 적용된다는 점에 유의하세요:
 
 ```ts
 import { defineStore, skipHydrate } from 'pinia'
@@ -106,8 +105,8 @@ export const useColorStore = defineStore('colors', () => {
   // ...
   return {
     lastColor: skipHydrate(lastColor), // Ref<string>
-    open, // Function
-    isSupported, // boolean (not even reactive)
+    open, // 함수
+    isSupported, // boolean (반응형도 아님)
   }
 })
 ```

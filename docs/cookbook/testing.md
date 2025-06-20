@@ -1,21 +1,21 @@
-# Testing stores
+# 스토어 테스트 %{#testing-stores}%
 
 <MasteringPiniaLink
   href="https://play.gumlet.io/embed/65f9a9c10bfab01f414c25dc"
   title="Watch a free video of Mastering Pinia about testing stores"
 />
 
-Stores will, by design, be used at many places and can make testing much harder than it should be. Fortunately, this doesn't have to be the case. We need to take care of three things when testing stores:
+스토어는 설계상 여러 곳에서 사용되며, 이로 인해 테스트가 생각보다 훨씬 더 어려워질 수 있습니다. 다행히도, 반드시 그럴 필요는 없습니다. 스토어를 테스트할 때는 세 가지를 신경 써야 합니다:
 
-- The `pinia` instance: Stores cannot work without it
-- `actions`: most of the time, they contain the most complex logic of our stores. Wouldn't it be nice if they were mocked by default?
-- Plugins: If you rely on plugins, you will have to install them for tests too
+- `pinia` 인스턴스: 스토어는 이것 없이는 동작하지 않습니다
+- `actions`: 대부분의 경우, 스토어에서 가장 복잡한 로직을 담고 있습니다. 기본적으로 mock 처리된다면 정말 좋지 않을까요?
+- 플러그인: 플러그인에 의존한다면, 테스트에서도 설치해야 합니다
 
-Depending on what or how you are testing, we need to take care of these three things differently.
+무엇을, 어떻게 테스트하느냐에 따라 이 세 가지를 다루는 방법이 달라집니다.
 
-## Unit testing a store
+## 스토어 단위 테스트 %{#unit-testing-a-store}%
 
-To unit test a store, the most important part is creating a `pinia` instance:
+스토어를 단위 테스트하려면, 가장 중요한 부분은 `pinia` 인스턴스를 생성하는 것입니다:
 
 ```js
 // stores/counter.spec.ts
@@ -24,9 +24,9 @@ import { useCounterStore } from '../src/stores/counter'
 
 describe('Counter Store', () => {
   beforeEach(() => {
-    // creates a fresh pinia and makes it active
-    // so it's automatically picked up by any useStore() call
-    // without having to pass it to it: `useStore(pinia)`
+    // 새로운 pinia를 생성하고 활성화합니다
+    // 그래서 어떤 useStore() 호출에서도 자동으로 사용됩니다
+    // pinia를 직접 전달할 필요 없이: `useStore(pinia)`
     setActivePinia(createPinia())
   })
 
@@ -45,16 +45,16 @@ describe('Counter Store', () => {
 })
 ```
 
-If you have any store plugins, there is one important thing to know: **plugins won't be used until `pinia` is installed in an App**. This can be solved by creating an empty App or a fake one:
+스토어 플러그인이 있다면, 한 가지 중요한 점이 있습니다: **플러그인은 `pinia`가 App에 설치되기 전까지는 사용되지 않습니다**. 이는 빈 App이나 가짜 App을 생성하여 해결할 수 있습니다:
 
 ```js
 import { setActivePinia, createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { somePlugin } from '../src/stores/plugin'
 
-// same code as above...
+// 위와 동일한 코드...
 
-// you don't need to create one app per test
+// 테스트마다 앱을 하나씩 만들 필요는 없습니다
 const app = createApp({})
 beforeEach(() => {
   const pinia = createPinia().use(somePlugin)
@@ -63,28 +63,28 @@ beforeEach(() => {
 })
 ```
 
-## Unit testing components
+## 컴포넌트 단위 테스트 %{#unit-testing-components}%
 
-<!-- NOTE: too long maybe but good value -->
+<!-- NOTE: 너무 길 수도 있지만 가치 있음 -->
 <!-- <MasteringPiniaLink
   href="https://play.gumlet.io/embed/6630f540c418f8419b73b2b2?t1=1715867840&t2=1715867570609?preload=false&autoplay=false&loop=false&disable_player_controls=false"
   title="Watch a free video of Mastering Pinia about testing stores"
 /> -->
 
-This can be achieved with `createTestingPinia()`, which returns a pinia instance designed to help unit tests components.
+이것은 `createTestingPinia()`로 달성할 수 있으며, 이는 컴포넌트 단위 테스트를 돕기 위해 설계된 pinia 인스턴스를 반환합니다.
 
-Start by installing `@pinia/testing`:
+먼저 `@pinia/testing`을 설치하세요:
 
 ```shell
 npm i -D @pinia/testing
 ```
 
-And make sure to create a testing pinia in your tests when mounting a component:
+그리고 컴포넌트를 마운트할 때 테스트용 pinia를 생성해야 합니다:
 
 ```js
 import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
-// import any store you want to interact with in tests
+// 테스트에서 상호작용할 스토어를 import
 import { useSomeStore } from '@/stores/myStore'
 
 const wrapper = mount(Counter, {
@@ -93,25 +93,25 @@ const wrapper = mount(Counter, {
   },
 })
 
-const store = useSomeStore() // uses the testing pinia!
+const store = useSomeStore() // 테스트용 pinia를 사용합니다!
 
-// state can be directly manipulated
+// state는 직접 조작할 수 있습니다
 store.name = 'my new name'
-// can also be done through patch
+// patch를 통해서도 가능합니다
 store.$patch({ name: 'new name' })
 expect(store.name).toBe('new name')
 
-// actions are stubbed by default, meaning they don't execute their code by default.
-// See below to customize this behavior.
+// actions는 기본적으로 stub 처리되어, 기본적으로 코드를 실행하지 않습니다.
+// 아래에서 이 동작을 커스터마이즈하는 방법을 확인하세요.
 store.someAction()
 
 expect(store.someAction).toHaveBeenCalledTimes(1)
 expect(store.someAction).toHaveBeenLastCalledWith()
 ```
 
-### Initial State
+### 초기 상태 설정 %{#initial-state}%
 
-You can set the initial state of **all of your stores** when creating a testing pinia by passing an `initialState` object. This object will be used by the testing pinia to _patch_ stores when they are created. Let's say you want to initialize the state of this store:
+테스트용 pinia를 생성할 때 `initialState` 객체를 전달하여 **모든 스토어의 초기 상태**를 설정할 수 있습니다. 이 객체는 스토어가 생성될 때 테스트용 pinia가 _patch_ 하는 데 사용됩니다. 예를 들어, 이 스토어의 상태를 초기화하고 싶다고 가정해봅시다:
 
 ```ts
 import { defineStore } from 'pinia'
@@ -122,31 +122,31 @@ const useCounterStore = defineStore('counter', {
 })
 ```
 
-Since the store is named _"counter"_, you need to add a matching object to `initialState`:
+스토어 이름이 _"counter"_이므로, `initialState`에 일치하는 객체를 추가해야 합니다:
 
 ```ts
-// somewhere in your test
+// 테스트 내 어딘가에서
 const wrapper = mount(Counter, {
   global: {
     plugins: [
       createTestingPinia({
         initialState: {
-          counter: { n: 20 }, // start the counter at 20 instead of 0
+          counter: { n: 20 }, // 카운터를 0이 아닌 20에서 시작
         },
       }),
     ],
   },
 })
 
-const store = useSomeStore() // uses the testing pinia!
+const store = useSomeStore() // 테스트용 pinia를 사용합니다!
 store.n // 20
 ```
 
-### Customizing behavior of actions
+### 액션 동작 커스터마이즈 %{#customizing-behavior-of-actions}%
 
-`createTestingPinia` stubs out all store actions unless told otherwise. This allows you to test your components and stores separately.
+`createTestingPinia`는 별도의 지시가 없는 한 모든 스토어 액션을 stub 처리합니다. 이를 통해 컴포넌트와 스토어를 별도로 테스트할 수 있습니다.
 
-If you want to revert this behavior and normally execute your actions during tests, specify `stubActions: false` when calling `createTestingPinia`:
+이 동작을 되돌리고, 테스트 중에 액션이 실제로 실행되게 하려면, `createTestingPinia` 호출 시 `stubActions: false`를 지정하세요:
 
 ```js
 const wrapper = mount(Counter, {
@@ -157,16 +157,16 @@ const wrapper = mount(Counter, {
 
 const store = useSomeStore()
 
-// Now this call WILL execute the implementation defined by the store
+// 이제 이 호출은 스토어에 정의된 구현을 실제로 실행합니다
 store.someAction()
 
-// ...but it's still wrapped with a spy, so you can inspect calls
+// ...하지만 여전히 spy로 감싸져 있으므로 호출을 검사할 수 있습니다
 expect(store.someAction).toHaveBeenCalledTimes(1)
 ```
 
-### Mocking the returned value of an action
+### 액션의 반환값 mock 처리 %{#mocking-the-returned-value-of-an-action}%
 
-Actions are automatically spied but type-wise, they are still the regular actions. In order to get the correct type, we must implement a custom type-wrapper that applies the `Mock` type to each action. **This type depends on the testing framework you are using**. Here is an example with Vitest:
+액션은 자동으로 spy 처리되지만, 타입상으로는 여전히 일반 액션입니다. 올바른 타입을 얻으려면, 각 액션에 `Mock` 타입을 적용하는 커스텀 타입 래퍼를 구현해야 합니다. **이 타입은 사용하는 테스트 프레임워크에 따라 다릅니다**. 아래는 Vitest 예시입니다:
 
 ```ts
 import type { Mock } from 'vitest'
@@ -187,7 +187,7 @@ function mockedStore<TStoreDef extends () => unknown>(
       Record<string, never>,
       {
         [K in keyof Actions]: Actions[K] extends (...args: any[]) => any
-          ? // 👇 depends on your testing framework
+          ? // 👇 사용하는 테스트 프레임워크에 따라 다름
             Mock<Actions[K]>
           : Actions[K]
       }
@@ -199,27 +199,27 @@ function mockedStore<TStoreDef extends () => unknown>(
 }
 ```
 
-This can be used in tests to get a correctly typed store:
+이것은 테스트에서 올바른 타입의 스토어를 얻는 데 사용할 수 있습니다:
 
 ```ts
 import { mockedStore } from './mockedStore'
 import { useSomeStore } from '@/stores/myStore'
 
 const store = mockedStore(useSomeStore)
-// typed!
+// 타입이 지정됨!
 store.someAction.mockResolvedValue('some value')
 ```
 
-If you are interesting in learning more tricks like this, you should check out the Testing lessons on [Mastering Pinia](https://masteringpinia.com/lessons/exercise-mocking-stores-introduction).
+이와 같은 더 많은 트릭을 배우고 싶다면, [Mastering Pinia](https://masteringpinia.com/lessons/exercise-mocking-stores-introduction)의 Testing 강의를 확인해보세요.
 
-### Specifying the createSpy function
+### createSpy 함수 지정 %{#specifying-the-createspy-function}%
 
-When using Jest, or vitest with `globals: true`, `createTestingPinia` automatically stubs actions using the spy function based on the existing test framework (`jest.fn` or `vitest.fn`). If you are not using `globals: true` or using a different framework, you'll need to provide a [createSpy](https://pinia.vuejs.org/api/@pinia/testing/interfaces/TestingOptions.html#createSpy-) option:
+Jest를 사용하거나, `globals: true`가 설정된 vitest를 사용할 때, `createTestingPinia`는 기존 테스트 프레임워크(`jest.fn` 또는 `vitest.fn`)에 따라 자동으로 액션을 spy 함수로 stub 처리합니다. `globals: true`를 사용하지 않거나 다른 프레임워크를 사용하는 경우, [createSpy](https://pinia.vuejs.org/api/@pinia/testing/interfaces/TestingOptions.html#createSpy-) 옵션을 제공해야 합니다:
 
 ::: code-group
 
 ```ts [vitest]
-// NOTE: not needed with `globals: true`
+// NOTE: `globals: true`에서는 필요 없음
 import { vi } from 'vitest'
 
 createTestingPinia({
@@ -237,11 +237,11 @@ createTestingPinia({
 
 :::
 
-You can find more examples in [the tests of the testing package](https://github.com/vuejs/pinia/blob/v3/packages/testing/src/testing.spec.ts).
+더 많은 예시는 [testing 패키지의 테스트](https://github.com/vuejs/pinia/blob/v3/packages/testing/src/testing.spec.ts)에서 확인할 수 있습니다.
 
-### Mocking getters
+### getter mock 처리 %{#mocking-getters}%
 
-By default, any getter will be computed like regular usage but you can manually force a value by setting the getter to anything you want:
+기본적으로, 모든 getter는 일반 사용과 같이 계산되지만, 원하는 값으로 getter를 직접 설정하여 강제로 값을 지정할 수 있습니다:
 
 ```ts
 import { defineStore } from 'pinia'
@@ -257,23 +257,23 @@ const useCounterStore = defineStore('counter', {
 const pinia = createTestingPinia()
 const counter = useCounterStore(pinia)
 
-counter.double = 3 // 🪄 getters are writable only in tests
+counter.double = 3 // 🪄 getter는 테스트에서만 쓰기 가능합니다
 
-// set to undefined to reset the default behavior
-// @ts-expect-error: usually it's a number
+// undefined로 설정하면 기본 동작으로 리셋됩니다
+// @ts-expect-error: 일반적으로는 숫자입니다
 counter.double = undefined
 counter.double // 2 (=1 x 2)
 ```
 
-### Pinia Plugins
+### Pinia 플러그인 %{#pinia-plugins}%
 
-If you have any pinia plugins, make sure to pass them when calling `createTestingPinia()` so they are properly applied. **Do not add them with `testingPinia.use(MyPlugin)`** like you would do with a regular pinia:
+Pinia 플러그인이 있다면, `createTestingPinia()`를 호출할 때 반드시 전달하여 올바르게 적용되도록 하세요. **일반 pinia처럼 `testingPinia.use(MyPlugin)`으로 추가하지 마세요**:
 
 ```js
 import { createTestingPinia } from '@pinia/testing'
 import { somePlugin } from '../src/stores/plugin'
 
-// inside some test
+// 어떤 테스트 내에서
 const wrapper = mount(Counter, {
   global: {
     plugins: [
@@ -286,6 +286,6 @@ const wrapper = mount(Counter, {
 })
 ```
 
-## E2E tests
+## E2E 테스트 %{#e2e-tests}%
 
-When it comes to Pinia, you don't need to change anything for E2E tests, that's the whole point of these tests! You could maybe test HTTP requests, but that's way beyond the scope of this guide 😄.
+Pinia와 관련해서는, E2E 테스트를 위해 별도로 변경할 필요가 없습니다. 이것이 바로 이러한 테스트의 핵심입니다! HTTP 요청을 테스트할 수도 있겠지만, 그건 이 가이드의 범위를 훨씬 벗어납니다 😄.

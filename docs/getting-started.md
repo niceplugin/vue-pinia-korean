@@ -1,11 +1,11 @@
-# Getting Started
+# 시작하기 %{#getting-started}%
 
-## Installation
+## 설치 %{#installation}%
 
 <VueMasteryLogoLink for="pinia-cheat-sheet">
 </VueMasteryLogoLink>
 
-Install `pinia` with your favorite package manager:
+`pinia`를 선호하는 패키지 매니저로 설치하세요:
 
 
 ::: code-group
@@ -29,12 +29,12 @@ bun add pinia
 :::
 
 :::tip
-If your app is using Vue <2.7, you also need to install the composition api: `@vue/composition-api`. If you are using Nuxt, you should follow [these instructions](/ssr/nuxt.md).
+앱이 Vue <2.7을 사용하고 있다면, composition api인 `@vue/composition-api`도 설치해야 합니다. Nuxt를 사용 중이라면 [이 안내](/ssr/nuxt.md)를 따라야 합니다.
 :::
 
-If you are using the Vue CLI, you can instead give this [**unofficial plugin**](https://github.com/wobsoriano/vue-cli-plugin-pinia) a try.
+Vue CLI를 사용 중이라면, 대신 [**비공식 플러그인**](https://github.com/wobsoriano/vue-cli-plugin-pinia)을 시도해 볼 수 있습니다.
 
-Create a pinia instance (the root store) and pass it to the app as a plugin:
+pinia 인스턴스(루트 스토어)를 생성하고 앱에 플러그인으로 전달하세요:
 
 ```js {2,5-6,8}
 import { createApp } from 'vue'
@@ -48,18 +48,18 @@ app.use(pinia)
 app.mount('#app')
 ```
 
-## What is a Store?
+## 스토어란? %{#what-is-a-store}%
 
-A Store (like Pinia) is an entity holding state and business logic that isn't bound to your Component tree. In other words, **it hosts global state**. It's a bit like a component that is always there and that everybody can read off and write to. It has **three concepts**, the [state](./core-concepts/state.md), [getters](./core-concepts/getters.md) and [actions](./core-concepts/actions.md) and it's safe to assume these concepts are the equivalent of `data`, `computed` and `methods` in components.
+스토어(Pinia와 같은)는 컴포넌트 트리에 종속되지 않는 상태와 비즈니스 로직을 보관하는 엔티티입니다. 다시 말해, **전역 상태를 관리합니다**. 항상 존재하며 모든 사람이 읽고 쓸 수 있는 컴포넌트와 비슷합니다. 세 가지 개념, 즉 [state](./core-concepts/state.md), [getters](./core-concepts/getters.md), [actions](./core-concepts/actions.md)가 있으며, 이 개념들은 컴포넌트의 `data`, `computed`, `methods`와 동일하다고 생각해도 무방합니다.
 
-## When should I use a Store
+## 언제 스토어를 사용해야 하나요 %{#when-should-i-use-a-store}%
 
-A store should contain data that can be accessed throughout your application. This includes data that is used in many places, e.g. User information that is displayed in the navbar, as well as data that needs to be preserved through pages, e.g. a very complicated multi-step form.
+스토어에는 애플리케이션 전체에서 접근할 수 있는 데이터를 포함해야 합니다. 여기에는 여러 곳에서 사용되는 데이터(예: 네비게이션 바에 표시되는 사용자 정보)와 페이지를 이동해도 유지되어야 하는 데이터(예: 매우 복잡한 다단계 폼)가 포함됩니다.
 
-On the other hand, you should avoid including in the store local data that could be hosted in a component instead, e.g. the visibility of an element local to a page.
+반면, 페이지에 국한된 요소의 가시성처럼 컴포넌트에 보관할 수 있는 로컬 데이터는 스토어에 포함하지 않는 것이 좋습니다.
 
-Not all applications need access to a global state, but if yours need one, Pinia will make your life easier.
+모든 애플리케이션이 전역 상태에 접근할 필요는 없지만, 필요하다면 Pinia가 훨씬 쉽게 만들어 줄 것입니다.
 
-## When should I **not** use a Store
+## 언제 스토어를 **사용하지 말아야** 하나요 %{#when-should-i-not-use-a-store}%
 
-Sometimes we end up using a store for too many things. If you feel like your application is over using stores, you might want to re consider the purposes of your stores. Namely, if some of their logic should just be composables or if some of their state should be local to a component. This is covered in depth in the [(Not) Overusing stores](https://masteringpinia.com/lessons/not-overusing-stores) lesson of Mastering Pinia.
+때로는 너무 많은 것에 스토어를 사용하게 됩니다. 애플리케이션이 스토어를 과도하게 사용하고 있다고 느껴진다면, 스토어의 목적을 다시 생각해 볼 필요가 있습니다. 즉, 일부 로직은 컴포저블로 분리하거나, 일부 상태는 컴포넌트의 로컬 상태로 두는 것이 더 적합할 수 있습니다. 이 내용은 Mastering Pinia의 [(스토어를) 과도하게 사용하지 않기](https://masteringpinia.com/lessons/not-overusing-stores) 강의에서 자세히 다룹니다.

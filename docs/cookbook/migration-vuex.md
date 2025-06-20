@@ -1,56 +1,58 @@
-# Migrating from Vuex ≤4
+# Vuex ≤4에서 마이그레이션 %{#migrating-from-vuex-4}%
 
-Although the structure of Vuex and Pinia stores is different, a lot of the logic can be reused. This guide serves to help you through the process and point out some common gotchas that can appear.
+Vuex와 Pinia 스토어의 구조는 다르지만, 많은 로직을 재사용할 수 있습니다. 이 가이드는 마이그레이션 과정을 도와주고, 자주 발생할 수 있는 몇 가지 주의사항을 알려줍니다.
 
-## Preparation
+## 준비 %{#preparation}%
 
-First, follow the [Getting Started guide](../getting-started.md) to install Pinia.
+먼저, [시작하기 가이드](../getting-started.md)를 따라 Pinia를 설치하세요.
 
-## Restructuring Modules to Stores
+## 모듈을 스토어로 재구성하기 %{#restructuring-modules-to-stores}%
 
-Vuex has the concept of a single store with multiple _modules_. These modules can optionally be namespaced and even nested within each other.
+Vuex에는 여러 _모듈_을 가진 단일 스토어의 개념이 있습니다. 이 모듈들은 선택적으로 네임스페이스를 가질 수 있고, 서로 중첩될 수도 있습니다.
 
-The easiest way to transition that concept to be used with Pinia is that each module you used previously is now a _store_. Each store requires an `id` which is similar to a namespace in Vuex. This means that each store is namespaced by design. Nested modules can also each become their own store. Stores that depend on each other will simply import the other store.
+이 개념을 Pinia에서 사용하기 가장 쉬운 방법은, 이전에 사용하던 각 모듈이 이제는 _스토어_가 되는 것입니다. 각 스토어는 Vuex의 네임스페이스와 유사한 `id`가 필요합니다. 즉, 각 스토어는 설계상 네임스페이스가 적용됩니다. 중첩된 모듈도 각각 자신의 스토어가 될 수 있습니다. 서로 의존하는 스토어는 단순히 다른 스토어를 import하면 됩니다.
 
-How you choose to restructure your Vuex modules into Pinia stores is entirely up to you, but here is one suggestion:
+Vuex 모듈을 Pinia 스토어로 어떻게 재구성할지는 전적으로 여러분의 선택이지만, 다음과 같은 방법을 제안합니다:
 
 ```bash
-# Vuex example (assuming namespaced modules)
+# Vuex 예시 (네임스페이스 모듈을 사용하는 경우) %{#vuex-example-assuming-namespaced-modules}%
+
 src
 └── store
-    ├── index.js           # Initializes Vuex, imports modules
+    ├── index.js           # Vuex 초기화, 모듈 import
     └── modules
-        ├── module1.js     # 'module1' namespace
+        ├── module1.js     # 'module1' 네임스페이스
         └── nested
-            ├── index.js   # 'nested' namespace, imports module2 & module3
-            ├── module2.js # 'nested/module2' namespace
-            └── module3.js # 'nested/module3' namespace
+            ├── index.js   # 'nested' 네임스페이스, module2 & module3 import
+            ├── module2.js # 'nested/module2' 네임스페이스
+            └── module3.js # 'nested/module3' 네임스페이스
 
-# Pinia equivalent, note ids match previous namespaces
+# Pinia 대응 구조, id가 이전 네임스페이스와 일치함에 주목 %{#pinia-equivalent-note-ids-match-previous-namespaces}%
+
 src
 └── stores
-    ├── index.js          # (Optional) Initializes Pinia, does not import stores
+    ├── index.js          # (선택사항) Pinia 초기화, 스토어 import 없음
     ├── module1.js        # 'module1' id
     ├── nested-module2.js # 'nestedModule2' id
     ├── nested-module3.js # 'nestedModule3' id
     └── nested.js         # 'nested' id
 ```
 
-This creates a flat structure for stores but also preserves the previous namespacing with equivalent `id`s. If you had some state/getters/actions/mutations in the root of the store (in the `store/index.js` file of Vuex) you may wish to create another store called something like `root` which holds all that information.
+이렇게 하면 스토어에 대해 평면적인 구조를 만들면서도, 이전 네임스페이스를 동일한 `id`로 보존할 수 있습니다. 만약 스토어의 루트(즉, Vuex의 `store/index.js` 파일)에 state/getters/actions/mutations가 있다면, 해당 정보를 담는 `root`와 같은 또 다른 스토어를 만들 수도 있습니다.
 
-The directory for Pinia is generally called `stores` instead of `store`. This is to emphasize that Pinia uses multiple stores, instead of a single store in Vuex.
+Pinia의 디렉토리는 일반적으로 `store`가 아니라 `stores`로 불립니다. 이는 Pinia가 여러 개의 스토어를 사용하는 반면, Vuex는 단일 스토어를 사용한다는 점을 강조하기 위함입니다.
 
-For large projects you may wish to do this conversion module by module rather than converting everything at once. You can actually mix Pinia and Vuex together during the migration so this approach can also work and is another reason for naming the Pinia directory `stores` instead.
+대규모 프로젝트의 경우, 한 번에 모든 것을 변환하기보다는 모듈별로 변환하는 것이 좋을 수 있습니다. 실제로 마이그레이션 중에는 Pinia와 Vuex를 함께 사용할 수 있으므로, 이 접근 방식도 가능하며 Pinia 디렉토리를 `stores`로 명명하는 또 다른 이유가 됩니다.
 
-## Converting a Single Module
+## 단일 모듈 변환하기 %{#converting-a-single-module}%
 
-Here is a complete example of the before and after of converting a Vuex module to a Pinia store, see below for a step-by-step guide. The Pinia example uses an option store as the structure is most similar to Vuex:
+아래는 Vuex 모듈을 Pinia 스토어로 변환하는 전후의 전체 예시입니다. 단계별 가이드는 아래를 참고하세요. Pinia 예시는 구조가 Vuex와 가장 유사한 옵션 스토어를 사용합니다:
 
 ```ts
-// Vuex module in the 'auth/user' namespace
+// 'auth/user' 네임스페이스의 Vuex 모듈
 import { Module } from 'vuex'
 import { api } from '@/api'
-import { RootState } from '@/types' // if using a Vuex type definition
+import { RootState } from '@/types' // Vuex 타입 정의를 사용하는 경우
 
 interface State {
   firstName: string
@@ -69,21 +71,21 @@ const storeModule: Module<State, RootState> = {
     firstName: (state) => state.firstName,
     fullName: (state) => `${state.firstName} ${state.lastName}`,
     loggedIn: (state) => state.userId !== null,
-    // combine with some state from other modules
+    // 다른 모듈의 state와 결합
     fullUserDetails: (state, getters, rootState, rootGetters) => {
       return {
         ...state,
         fullName: getters.fullName,
-        // read the state from another module named `auth`
+        // 'auth'라는 다른 모듈의 state 읽기
         ...rootState.auth.preferences,
-        // read a getter from a namespaced module called `email` nested under `auth`
+        // 'auth' 아래에 중첩된 'email' 네임스페이스 모듈의 getter 읽기
         ...rootGetters['auth/email'].details
       }
     }
   },
   actions: {
     async loadUser ({ state, commit }, id: number) {
-      if (state.userId !== null) throw new Error('Already logged in')
+      if (state.userId !== null) throw new Error('이미 로그인됨')
       const res = await api.user.load(id)
       commit('updateUser', res)
     }
@@ -106,11 +108,11 @@ export default storeModule
 ```
 
 ```ts
-// Pinia Store
+// Pinia 스토어
 import { defineStore } from 'pinia'
 import { useAuthPreferencesStore } from './auth-preferences'
 import { useAuthEmailStore } from './auth-email'
-import vuexStore from '@/store' // for gradual conversion, see fullUserDetails
+import vuexStore from '@/store' // 점진적 변환을 위한 예시, fullUserDetails 참고
 
 interface State {
   firstName: string
@@ -119,30 +121,30 @@ interface State {
 }
 
 export const useAuthUserStore = defineStore('authUser', {
-  // convert to a function
+  // 함수로 변환
   state: (): State => ({
     firstName: '',
     lastName: '',
     userId: null
   }),
   getters: {
-    // firstName getter removed, no longer needed
+    // firstName getter 제거, 더 이상 필요 없음
     fullName: (state) => `${state.firstName} ${state.lastName}`,
     loggedIn: (state) => state.userId !== null,
-    // must define return type because of using `this`
+    // `this`를 사용하므로 반환 타입 명시 필요
     fullUserDetails (state): FullUserDetails {
-      // import from other stores
+      // 다른 스토어에서 import
       const authPreferencesStore = useAuthPreferencesStore()
       const authEmailStore = useAuthEmailStore()
       return {
         ...state,
-        // other getters now on `this`
+        // 다른 getter는 이제 `this`에 있음
         fullName: this.fullName,
         ...authPreferencesStore.$state,
         ...authEmailStore.details
       }
 
-      // alternative if other modules are still in Vuex
+      // 다른 모듈이 아직 Vuex에 있다면 대안
       // return {
       //   ...state,
       //   fullName: this.fullName,
@@ -152,19 +154,19 @@ export const useAuthUserStore = defineStore('authUser', {
     }
   },
   actions: {
-    // no context as first argument, use `this` instead
+    // 첫 번째 인자로 context 없음, 대신 `this` 사용
     async loadUser (id: number) {
-      if (this.userId !== null) throw new Error('Already logged in')
+      if (this.userId !== null) throw new Error('이미 로그인됨')
       const res = await api.user.load(id)
       this.updateUser(res)
     },
-    // mutations can now become actions, instead of `state` as first argument use `this`
+    // mutation은 이제 action이 될 수 있음, 첫 번째 인자로 `state` 대신 `this` 사용
     updateUser (payload) {
       this.firstName = payload.firstName
       this.lastName = payload.lastName
       this.userId = payload.userId
     },
-    // easily reset state using `$reset`
+    // `$reset`으로 state를 쉽게 초기화
     clearUser () {
       this.$reset()
     }
@@ -172,31 +174,31 @@ export const useAuthUserStore = defineStore('authUser', {
 })
 ```
 
-Let's break the above down into steps:
+위 내용을 단계별로 살펴보면:
 
-1. Add a required `id` for the store, you may wish to keep this the same as the namespace before. It is also recommended to make sure the `id` is in _camelCase_ as it makes it easier to use with `mapStores()`.
-2. Convert `state` to a function if it was not one already
-3. Convert `getters`
-    1. Remove any getters that return state under the same name (eg. `firstName: (state) => state.firstName`), these are not necessary as you can access any state directly from the store instance
-    2. If you need to access other getters, they are on `this` instead of using the second argument. Remember that if you are using `this` then you will have to use a regular function instead of an arrow function. Also note that you will need to specify a return type because of TS limitations, see [here](../core-concepts/getters.md#accessing-other-getters) for more details
-    3. If using `rootState` or `rootGetters` arguments, replace them by importing the other store directly, or if they still exist in Vuex then access them directly from Vuex
-4. Convert `actions`
-    1. Remove the first `context` argument from each action. Everything should be accessible from `this` instead
-    2. If using other stores either import them directly or access them on Vuex, the same as for getters
-5. Convert `mutations`
-    1. Mutations do not exist any more. These can be converted to `actions` instead, or you can just assign directly to the store within your components (eg. `userStore.firstName = 'First'`)
-    2. If converting to actions, remove the first `state` argument and replace any assignments with `this` instead
-    3. A common mutation is to reset the state back to its initial state. This is built in functionality with the store's `$reset` method. Note that this functionality only exists for option stores.
+1. 스토어에 필수 `id`를 추가합니다. 이전 네임스페이스와 동일하게 유지하는 것이 좋습니다. 또한 `id`는 _camelCase_로 지정하는 것이 `mapStores()`와 함께 사용할 때 더 편리합니다.
+2. `state`를 함수로 변환합니다(이미 함수가 아니라면).
+3. `getters` 변환
+    1. state를 동일한 이름으로 반환하는 getter(예: `firstName: (state) => state.firstName`)는 제거합니다. 스토어 인스턴스에서 state에 직접 접근할 수 있으므로 필요하지 않습니다.
+    2. 다른 getter에 접근해야 한다면, 두 번째 인자 대신 `this`에 있습니다. `this`를 사용하려면 화살표 함수 대신 일반 함수를 사용해야 하며, TS 제한으로 인해 반환 타입을 명시해야 합니다. 자세한 내용은 [여기](../core-concepts/getters.md#accessing-other-getters)를 참고하세요.
+    3. `rootState`나 `rootGetters` 인자를 사용했다면, 해당 스토어를 직접 import해서 사용하거나, 아직 Vuex에 있다면 Vuex에서 직접 접근하세요.
+4. `actions` 변환
+    1. 각 action의 첫 번째 `context` 인자를 제거합니다. 모든 것은 대신 `this`에서 접근할 수 있습니다.
+    2. 다른 스토어를 사용할 경우, getter와 마찬가지로 직접 import하거나 Vuex에서 접근하세요.
+5. `mutations` 변환
+    1. mutation은 더 이상 존재하지 않습니다. 대신 action으로 변환하거나, 컴포넌트 내에서 스토어에 직접 할당할 수 있습니다(예: `userStore.firstName = 'First'`).
+    2. action으로 변환할 경우, 첫 번째 `state` 인자를 제거하고 모든 할당을 `this`로 변경하세요.
+    3. state를 초기 상태로 리셋하는 mutation은 흔한데, 이는 스토어의 `$reset` 메서드로 내장되어 있습니다. 이 기능은 옵션 스토어에서만 사용할 수 있습니다.
 
-As you can see most of your code can be reused. Type safety should also help you identify what needs to be changed if anything is missed.
+보시다시피 대부분의 코드를 재사용할 수 있습니다. 타입 안전성 덕분에 변경이 필요한 부분도 쉽게 파악할 수 있습니다.
 
-## Usage Inside Components
+## 컴포넌트 내부에서의 사용 %{#usage-inside-components}%
 
-Now that your Vuex module has been converted to a Pinia store, any component or other file that uses that module needs to be updated too.
+이제 Vuex 모듈이 Pinia 스토어로 변환되었으므로, 해당 모듈을 사용하는 모든 컴포넌트나 파일도 업데이트해야 합니다.
 
-If you were using `map` helpers from Vuex before, it's worth looking at the [Usage without setup() guide](./options-api.md) as most of those helpers can be reused.
+이전에 Vuex의 `map` 헬퍼를 사용했다면, [setup() 없이 사용하기 가이드](./options-api.md)를 참고하세요. 대부분의 헬퍼를 재사용할 수 있습니다.
 
-If you were using `useStore` then instead import the new store directly and access the state on it. For example:
+`useStore`를 사용했다면, 이제 새 스토어를 직접 import해서 state에 접근하면 됩니다. 예를 들어:
 
 ```ts
 // Vuex
@@ -231,7 +233,7 @@ export default defineComponent({
     const fullName = computed(() => authUserStore.fullName)
 
     return {
-      // you can also access the whole store in your component by returning it
+      // 컴포넌트에서 전체 스토어를 반환하여 접근할 수도 있음
       authUserStore,
       firstName,
       fullName
@@ -240,9 +242,9 @@ export default defineComponent({
 })
 ```
 
-## Usage Outside Components
+## 컴포넌트 외부에서의 사용 %{#usage-outside-components}%
 
-Updating usage outside of components should be simple as long as you're careful to _not use a store outside of functions_. Here is an example of using the store in a Vue Router navigation guard:
+컴포넌트 외부에서의 사용을 업데이트하는 것은 _함수 외부에서 스토어를 사용하지 않는 것_만 주의하면 간단합니다. 다음은 Vue Router 네비게이션 가드에서 스토어를 사용하는 예시입니다:
 
 ```ts
 // Vuex
@@ -259,29 +261,29 @@ router.beforeEach((to, from, next) => {
 import { useAuthUserStore } from '@/stores/auth-user'
 
 router.beforeEach((to, from, next) => {
-  // Must be used within the function!
+  // 반드시 함수 내부에서 사용해야 함!
   const authUserStore = useAuthUserStore()
   if (authUserStore.loggedIn) next()
   else next('/login')
 })
 ```
 
-More details can be found [here](../core-concepts/outside-component-usage.md).
+자세한 내용은 [여기](../core-concepts/outside-component-usage.md)를 참고하세요.
 
-## Advanced Vuex Usage
+## 고급 Vuex 사용법 %{#advanced-vuex-usage}%
 
-In the case your Vuex store using some of the more advanced features it offers, here is some guidance on how to accomplish the same in Pinia. Some of these points are already covered in [this comparison summary](../introduction.md#Comparison-with-Vuex-3-x-4-x).
+Vuex 스토어에서 제공하는 고급 기능을 사용하는 경우, Pinia에서 동일하게 구현하는 방법에 대한 안내입니다. 이 중 일부는 [비교 요약](../introduction.md#Comparison-with-Vuex-3-x-4-x)에서도 다루고 있습니다.
 
-### Dynamic Modules
+### 동적 모듈 %{#dynamic-modules}%
 
-There is no need to dynamically register modules in Pinia. Stores are dynamic by design and are only registered when they are needed. If a store is never used, it will never be "registered".
+Pinia에서는 동적으로 모듈을 등록할 필요가 없습니다. 스토어는 설계상 동적이며, 필요할 때만 등록됩니다. 한 번도 사용되지 않은 스토어는 "등록"되지 않습니다.
 
-### Hot Module Replacement
+### 핫 모듈 교체 %{#hot-module-replacement}%
 
-HMR is also supported but will need to be replaced, see the [HMR Guide](./hot-module-replacement.md).
+HMR도 지원되지만, 대체가 필요합니다. [HMR 가이드](./hot-module-replacement.md)를 참고하세요.
 
-### Plugins
+### 플러그인 %{#plugins}%
 
-If you use a public Vuex plugin then check if there is a Pinia alternative. If not you will need to write your own or evaluate whether the plugin is still necessary.
+공개된 Vuex 플러그인을 사용한다면, Pinia 대체 플러그인이 있는지 확인하세요. 없다면 직접 작성하거나, 해당 플러그인이 여전히 필요한지 평가해야 합니다.
 
-If you have written a plugin of your own, then it can likely be updated to work with Pinia. See the [Plugin Guide](../core-concepts/plugins.md).
+직접 플러그인을 작성했다면, Pinia에 맞게 업데이트할 수 있습니다. [플러그인 가이드](../core-concepts/plugins.md)를 참고하세요.

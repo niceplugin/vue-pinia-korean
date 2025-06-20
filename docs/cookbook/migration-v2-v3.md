@@ -1,14 +1,14 @@
-# Migrating from v2 to v3
+# v2에서 v3로 마이그레이션 %{#migrating-from-v2-to-v3}%
 
-Pinia v3 is a _boring_ major release with no new features. It drops deprecated APIs and updates major dependencies. It only supports Vue 3. If you are using Vue 2, you can keep using v2. If you need help, [book help with Pinia's author](https://cal.com/posva/consultancy).
+Pinia v3는 새로운 기능이 없는 _지루한_ 메이저 릴리스입니다. 사용이 중단된 API를 제거하고 주요 의존성을 업데이트했습니다. 오직 Vue 3만 지원합니다. Vue 2를 사용 중이라면 v2를 계속 사용할 수 있습니다. 도움이 필요하다면 [Pinia의 저자에게 도움을 요청하세요](https://cal.com/posva/consultancy).
 
-For most users, the migration should require **no change**. This guide is here to help you in case you encounter any issues.
+대부분의 사용자에게 마이그레이션은 **변경이 필요 없습니다**. 이 가이드는 문제가 발생할 경우 도움을 드리기 위해 마련되었습니다.
 
-## Deprecations
+## 사용 중단 %{#deprecations}%
 
-### `defineStore({ id })`
+### `defineStore({ id })` %{#definestore-id}%
 
-The `defineStore()` signature that accepts an object with an `id` property is deprecated. You should use the `id` parameter instead:
+`id` 속성이 있는 객체를 받는 `defineStore()` 시그니처는 사용이 중단되었습니다. 대신 `id` 매개변수를 사용해야 합니다:
 
 ```ts
 defineStore({ // [!code --]
@@ -18,16 +18,16 @@ defineStore('storeName', { // [!code ++]
 })
 ```
 
-### `PiniaStorePlugin`
+### `PiniaStorePlugin` %{#piniastoreplugin}%
 
-This deprecated type alias has been removed in favor of `PiniaPlugin`.
+이 사용 중단된 타입 별칭은 `PiniaPlugin`으로 대체되어 제거되었습니다.
 
-## New versions
+## 새로운 버전 %{#new-versions}%
 
-- Only Vue 3 is supported.
-- TypeScript 5 or newer is required.
-- The devtools API has been upgraded to [v7](https://devtools.vuejs.org).
+- 오직 Vue 3만 지원합니다.
+- TypeScript 5 이상이 필요합니다.
+- devtools API가 [v7](https://devtools.vuejs.org)로 업그레이드되었습니다.
 
-## Nuxt
+## Nuxt %{#nuxt}%
 
-The Nuxt module has been updated to support Nuxt 3. If you are using Nuxt 2 or Nuxt bridge, you can keep using the old version of Pinia.
+Nuxt 모듈이 Nuxt 3을 지원하도록 업데이트되었습니다. Nuxt 2 또는 Nuxt bridge를 사용 중이라면 이전 버전의 Pinia를 계속 사용할 수 있습니다.

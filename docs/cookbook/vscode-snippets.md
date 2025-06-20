@@ -1,8 +1,8 @@
-# VS Code Snippets
+# VS Code 스니펫 %{#vs-code-snippets}%
 
-These are some snippets that I use in VS Code to make my life easier.
+여기 제가 VS Code에서 더 편리하게 작업하기 위해 사용하는 몇 가지 스니펫이 있습니다.
 
-Manage user snippets with <kbd>⇧ Shift</kbd>+<kbd>⌘ Command</kbd>+<kbd>P</kbd> / <kbd>⇧ Shift</kbd>+<kbd>⌃ Control</kbd>+<kbd>P</kbd> and then `Snippets: Configure User Snippets`.
+<kbd>⇧ Shift</kbd>+<kbd>⌘ Command</kbd>+<kbd>P</kbd> / <kbd>⇧ Shift</kbd>+<kbd>⌃ Control</kbd>+<kbd>P</kbd>를 누른 후 `Snippets: Configure User Snippets`로 사용자 스니펫을 관리할 수 있습니다.
 
 ```json
 {
@@ -25,7 +25,7 @@ Manage user snippets with <kbd>⇧ Shift</kbd>+<kbd>⌘ Command</kbd>+<kbd>P</kb
       "}",
       ""
     ],
-    "description": "Bootstrap the code needed for a Vue.js Pinia Options Store file"
+    "description": "Vue.js Pinia Options Store 파일에 필요한 코드를 부트스트랩합니다"
   },
   "Pinia Setup Store Boilerplate": {
     "scope": "javascript,typescript",
@@ -43,7 +43,7 @@ Manage user snippets with <kbd>⇧ Shift</kbd>+<kbd>⌘ Command</kbd>+<kbd>P</kb
       "}",
       ""
     ],
-    "description": "Bootstrap the code needed for a Vue.js Pinia Setup Store file"
+    "description": "Vue.js Pinia Setup Store 파일에 필요한 코드를 부트스트랩합니다"
   }
 }
 ```
