@@ -46,9 +46,4 @@ features:
     details: Pinia의 크기는 약 1.5kb에 불과해, 존재를 잊게 될 것입니다!
 ---
 
-<script setup>
-import HomeSponsors from './.vitepress/theme/components/HomeSponsors.vue'
-import './.vitepress/theme/styles/home-links.css'
-</script>
-
 <HomeSponsors />
